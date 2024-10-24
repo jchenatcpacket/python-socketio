@@ -41,7 +41,7 @@ class AsyncRedisManager(AsyncPubSubManager):  # pragma: no cover
     """
     name = 'aioredis'
 
-    def __init__(self, url='redis://localhost:6379/0', channel='socketio',
+    async def __init__(self, url='redis://localhost:6379/0', channel='socketio',
                  write_only=False, logger=None, redis_options=None):
         if aioredis is None:
             raise RuntimeError('Redis package is not installed '
@@ -50,11 +50,11 @@ class AsyncRedisManager(AsyncPubSubManager):  # pragma: no cover
             raise RuntimeError('Version 2 of aioredis package is required.')
         self.redis_url = url
         self.redis_options = redis_options or {}
-        self._redis_connect()
+        await self._redis_connect()
         super().__init__(channel=channel, write_only=write_only, logger=logger)
 
-    def _redis_connect(self):
-        self.redis = aioredis.Redis.from_url(self.redis_url,
+    async def _redis_connect(self):
+        self.redis = await aioredis.Redis.from_url(self.redis_url,
                                              **self.redis_options)
         self.pubsub = self.redis.pubsub(ignore_subscribe_messages=True)
 
